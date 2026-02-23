@@ -3,27 +3,43 @@
 import { useState } from "react";
 import Link from "next/link";
 import MegaMenu from "./MegaMenu";
+import ServiceMegaMenu from "./ServiceMegaMenu";
 
 const NavItems = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+
+  const linkClass = (key: string) =>
+    `inline-block border-b-2 py-5 font-sans text-sm font-medium uppercase tracking-wide transition ${
+      activeMenu === key
+        ? "border-[#E60012] text-[#E60012]"
+        : "border-transparent text-gray-700 hover:text-[#E60012]"
+    }`;
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
-    >
-      <Link
-        href="/products"
-        className={`inline-block border-b-2 py-5 font-sans text-sm font-medium uppercase tracking-wide transition ${
-          isOpen
-            ? "border-[#E60012] text-[#E60012]"
-            : "border-transparent text-gray-700 hover:text-[#E60012]"
-        }`}
+    <div className="flex items-center gap-8">
+      {/* Products */}
+      <div
+        className="relative"
+        onMouseEnter={() => setActiveMenu("products")}
+        onMouseLeave={() => setActiveMenu(null)}
       >
-        Products
-      </Link>
-      <MegaMenu isOpen={isOpen} />
+        <Link href="/products" className={linkClass("products")}>
+          Products
+        </Link>
+        <MegaMenu isOpen={activeMenu === "products"} />
+      </div>
+
+      {/* Services */}
+      <div
+        className="relative"
+        onMouseEnter={() => setActiveMenu("services")}
+        onMouseLeave={() => setActiveMenu(null)}
+      >
+        <Link href="/services" className={linkClass("services")}>
+          Services
+        </Link>
+        <ServiceMegaMenu isOpen={activeMenu === "services"} />
+      </div>
     </div>
   );
 };

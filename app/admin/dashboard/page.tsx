@@ -17,9 +17,18 @@ interface Vehicle {
   createdAt: string;
 }
 
+interface ServiceStats {
+  totalAppointments: number;
+  pendingAppointments: number;
+  completedAppointments: number;
+  totalPickupRequests: number;
+  pendingPickupRequests: number;
+}
+
 export default function OverviewPage() {
   const router = useRouter();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [serviceStats, setServiceStats] = useState<ServiceStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,12 +37,15 @@ export default function OverviewPage() {
       router.push("/admin/login");
       return;
     }
-    fetch("/api/vehicles/admin", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) setVehicles(d.data);
+    const headers = { Authorization: `Bearer ${token}` };
+
+    Promise.all([
+      fetch("/api/vehicles/admin", { headers }).then((r) => r.json()),
+      fetch("/api/admin/dashboard", { headers }).then((r) => r.json()),
+    ])
+      .then(([vehicleData, dashData]) => {
+        if (vehicleData.success) setVehicles(vehicleData.data);
+        if (dashData.success) setServiceStats(dashData.stats);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -241,6 +253,75 @@ export default function OverviewPage() {
           )}
         </div>
       </div>
+
+      {/* Service Stats */}
+      {serviceStats && (
+        <div className="grid grid-cols-2 gap-6 mt-8">
+          {/* Appointments */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-gray-900">
+                Service Appointments
+              </h3>
+              <Link
+                href="/admin/dashboard/service-appointments"
+                className="text-xs text-red-600 hover:text-red-700 font-medium"
+              >
+                View all →
+              </Link>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Total</span>
+                <span className="text-lg font-bold text-gray-900">
+                  {serviceStats.totalAppointments}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-yellow-600">Pending</span>
+                <span className="text-lg font-bold text-yellow-600">
+                  {serviceStats.pendingAppointments}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-green-600">Completed</span>
+                <span className="text-lg font-bold text-green-600">
+                  {serviceStats.completedAppointments}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Pickup Requests */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-gray-900">
+                Pickup & Drop
+              </h3>
+              <Link
+                href="/admin/dashboard/pickup-requests"
+                className="text-xs text-red-600 hover:text-red-700 font-medium"
+              >
+                View all →
+              </Link>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Total</span>
+                <span className="text-lg font-bold text-gray-900">
+                  {serviceStats.totalPickupRequests}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-yellow-600">Pending</span>
+                <span className="text-lg font-bold text-yellow-600">
+                  {serviceStats.pendingPickupRequests}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

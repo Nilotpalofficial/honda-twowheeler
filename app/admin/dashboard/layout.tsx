@@ -7,6 +7,9 @@ import { useEffect, useState } from "react";
 const navItems = [
   { href: "/admin/dashboard", label: "Overview", icon: "📊" },
   { href: "/admin/dashboard/vehicles", label: "Vehicles", icon: "🏍️" },
+  { href: "/admin/dashboard/service-appointments", label: "Appointments", icon: "📅" },
+  { href: "/admin/dashboard/pickup-requests", label: "Pickup & Drop", icon: "🚚" },
+  { href: "/admin/dashboard/service-schedules", label: "Service Schedules", icon: "🔧" },
 ];
 
 export default function DashboardLayout({
